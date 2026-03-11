@@ -1839,6 +1839,14 @@ export class App {
             </button>
           </div>
           <div class="map-container" id="mapContainer"></div>
+          <div class="war-ticker" id="warTicker">
+            <div class="war-ticker-label">⚔ BREAKING</div>
+            <div class="war-ticker-track">
+              <div class="war-ticker-content" id="warTickerContent">
+                IRAN WAR MONITOR — Loading latest updates...
+              </div>
+            </div>
+          </div>
           <div class="map-resize-handle" id="mapResizeHandle"></div>
         </div>
         <div class="panels-grid" id="panelsGrid"></div>
@@ -1873,6 +1881,32 @@ export class App {
 
     this.createPanels();
     this.renderPanelToggles();
+  }
+
+  private updateWarTicker(news: NewsItem[]): void {
+    const tickerEl = document.getElementById('warTickerContent');
+    if (!tickerEl) return;
+
+    const headlines = news
+      .filter(n => n.title && n.title.length > 10)
+      .slice(0, 30)
+      .map(n => {
+        const src = n.source ? `[${n.source}]` : '';
+        return `${src} ${n.title}`;
+      });
+
+    if (headlines.length === 0) {
+      tickerEl.textContent = 'IRAN WAR MONITOR — Awaiting latest intelligence updates...';
+      return;
+    }
+
+    const separator = '  ◆  ';
+    const tickerText = headlines.join(separator) + separator;
+    tickerEl.textContent = tickerText;
+
+    const contentWidth = tickerEl.scrollWidth;
+    const duration = Math.max(contentWidth / 60, 30);
+    tickerEl.style.animationDuration = `${duration}s`;
   }
 
   /**
@@ -3394,6 +3428,7 @@ export class App {
     }
 
     this.allNews = collectedNews;
+    this.updateWarTicker(collectedNews);
     this.initialLoadComplete = true;
     maybeShowDownloadBanner();
     mountCommunityWidget();

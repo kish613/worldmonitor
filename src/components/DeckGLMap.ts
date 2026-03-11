@@ -134,7 +134,7 @@ const VIEW_PRESETS: Record<DeckMapView, { longitude: number; latitude: number; z
 const MAP_INTERACTION_MODE: MapInteractionMode =
   import.meta.env.VITE_MAP_INTERACTION_MODE === 'flat' ? 'flat' : '3d';
 
-// Theme-aware basemap vector style URLs (English labels, no local scripts)
+// War-themed dark basemap — CARTO dark-matter with post-load military tint
 const DARK_STYLE = 'https://basemaps.cartocdn.com/gl/dark-matter-gl-style/style.json';
 const LIGHT_STYLE = 'https://basemaps.cartocdn.com/gl/voyager-gl-style/style.json';
 
@@ -346,6 +346,7 @@ export class DeckGLMap {
     this.initMapLibre();
 
     this.maplibreMap?.on('load', () => {
+      this.applyWarMapStyle();
       this.initDeck();
       this.loadCountryBoundaries();
       this.render();
@@ -407,6 +408,52 @@ export class DeckGLMap {
       console.info('[DeckGLMap] WebGL context restored');
       this.maplibreMap?.triggerRepaint();
     });
+  }
+
+  private applyWarMapStyle(): void {
+    if (!this.maplibreMap) return;
+    const map = this.maplibreMap;
+    const style = map.getStyle();
+    if (!style?.layers) return;
+
+    for (const layer of style.layers) {
+      try {
+        if (layer.type === 'background') {
+          map.setPaintProperty(layer.id, 'background-color', '#0a0806');
+        } else if (layer.type === 'fill') {
+          const id = layer.id.toLowerCase();
+          if (id.includes('water')) {
+            map.setPaintProperty(layer.id, 'fill-color', '#0c1a1a');
+          } else if (id.includes('land') || id.includes('earth')) {
+            map.setPaintProperty(layer.id, 'fill-color', '#1a1209');
+          } else if (id.includes('building')) {
+            map.setPaintProperty(layer.id, 'fill-color', '#1a1510');
+          } else {
+            const current = map.getPaintProperty(layer.id, 'fill-color');
+            if (typeof current === 'string' && current.startsWith('#')) {
+              map.setPaintProperty(layer.id, 'fill-opacity', 0.6);
+            }
+          }
+        } else if (layer.type === 'line') {
+          const id = layer.id.toLowerCase();
+          if (id.includes('road') || id.includes('highway') || id.includes('street')) {
+            map.setPaintProperty(layer.id, 'line-color', '#2a1f15');
+            map.setPaintProperty(layer.id, 'line-opacity', 0.5);
+          } else if (id.includes('border') || id.includes('boundary') || id.includes('admin')) {
+            map.setPaintProperty(layer.id, 'line-color', '#8b2500');
+            map.setPaintProperty(layer.id, 'line-opacity', 0.8);
+          }
+        } else if (layer.type === 'symbol') {
+          if (map.getPaintProperty(layer.id, 'text-color') !== undefined || layer.layout?.['text-field']) {
+            map.setPaintProperty(layer.id, 'text-color', '#cc8855');
+            map.setPaintProperty(layer.id, 'text-halo-color', '#0a0806');
+            map.setPaintProperty(layer.id, 'text-halo-width', 1.5);
+          }
+        }
+      } catch {
+        // skip layers that don't support the property
+      }
+    }
   }
 
   private initDeck(): void {
@@ -3815,6 +3862,7 @@ export class DeckGLMap {
     // setStyle() replaces all sources/layers — reset guard so country layers are re-added
     this.countryGeoJsonLoaded = false;
     this.maplibreMap.once('style.load', () => {
+      this.applyWarMapStyle();
       this.loadCountryBoundaries();
     });
   }
