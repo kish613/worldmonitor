@@ -739,6 +739,77 @@ canvas,
   transition: opacity 0.2s;
 }
 
+/* ============================================
+   WAR TICKER — Breaking news marquee
+   ============================================ */
+.war-ticker {
+  position: absolute;
+  bottom: 10px;
+  left: 0;
+  right: 0;
+  height: 32px;
+  background: linear-gradient(90deg, #8b0000ee, #cc1100ee, #8b0000ee);
+  display: flex;
+  align-items: center;
+  z-index: 150;
+  overflow: hidden;
+  border-top: 2px solid #ff3300;
+  border-bottom: 2px solid #ff3300;
+  box-shadow: 0 0 20px rgba(200, 0, 0, 0.5), inset 0 0 20px rgba(0, 0, 0, 0.3);
+  font-family: 'Arial Narrow', Arial, Helvetica, sans-serif;
+}
+
+.war-ticker-label {
+  background: #1a0000;
+  color: #ff4444;
+  font-weight: 900;
+  font-size: 12px;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  padding: 0 14px;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  white-space: nowrap;
+  border-right: 2px solid #ff3300;
+  z-index: 2;
+  flex-shrink: 0;
+  text-shadow: 0 0 6px rgba(255, 50, 50, 0.6);
+}
+
+.war-ticker-track {
+  flex: 1;
+  overflow: hidden;
+  position: relative;
+  height: 100%;
+  display: flex;
+  align-items: center;
+}
+
+.war-ticker-content {
+  white-space: nowrap;
+  color: #ffffff;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.8);
+  animation: ticker-scroll 60s linear infinite;
+  padding-left: 100%;
+}
+
+@keyframes ticker-scroll {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-100%);
+  }
+}
+
+.war-ticker-content:hover {
+  animation-play-state: paused;
+}
+
 .map-resize-handle:hover::after {
   opacity: 1;
 }

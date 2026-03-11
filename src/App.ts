@@ -1782,32 +1782,10 @@ export class App {
       <div class="header">
         <div class="header-left">
           <div class="variant-switcher">
-            <a href="${this.isDesktopApp ? '#' : (SITE_VARIANT === 'full' ? '#' : 'https://worldmonitor.app')}"
-               class="variant-option ${SITE_VARIANT === 'full' ? 'active' : ''}"
-               data-variant="full"
-               ${!this.isDesktopApp && SITE_VARIANT !== 'full' ? 'target="_blank" rel="noopener"' : ''}
-               title="${t('header.world')}${SITE_VARIANT === 'full' ? ` ${t('common.currentVariant')}` : ''}">
-              <span class="variant-icon">🌍</span>
-              <span class="variant-label">${t('header.world')}</span>
-            </a>
-            <span class="variant-divider"></span>
-            <a href="${this.isDesktopApp ? '#' : (SITE_VARIANT === 'tech' ? '#' : 'https://tech.worldmonitor.app')}"
-               class="variant-option ${SITE_VARIANT === 'tech' ? 'active' : ''}"
-               data-variant="tech"
-               ${!this.isDesktopApp && SITE_VARIANT !== 'tech' ? 'target="_blank" rel="noopener"' : ''}
-               title="${t('header.tech')}${SITE_VARIANT === 'tech' ? ` ${t('common.currentVariant')}` : ''}">
-              <span class="variant-icon">💻</span>
-              <span class="variant-label">${t('header.tech')}</span>
-            </a>
-            <span class="variant-divider"></span>
-            <a href="${this.isDesktopApp ? '#' : (SITE_VARIANT === 'finance' ? '#' : 'https://finance.worldmonitor.app')}"
-               class="variant-option ${SITE_VARIANT === 'finance' ? 'active' : ''}"
-               data-variant="finance"
-               ${!this.isDesktopApp && SITE_VARIANT !== 'finance' ? 'target="_blank" rel="noopener"' : ''}
-               title="${t('header.finance')}${SITE_VARIANT === 'finance' ? ` ${t('common.currentVariant')}` : ''}">
-              <span class="variant-icon">📈</span>
-              <span class="variant-label">${t('header.finance')}</span>
-            </a>
+            <span class="variant-option active" style="cursor:default;">
+              <span class="variant-icon">⚔️</span>
+              <span class="variant-label">IRAN WAR</span>
+            </span>
           </div>
           <span class="logo">MONITOR</span><span class="version">v${__APP_VERSION__}</span>${BETA_MODE ? '<span class="beta-badge">BETA</span>' : ''}
           <a href="https://x.com/eliehabib" target="_blank" rel="noopener" class="credit-link">
@@ -1861,6 +1839,14 @@ export class App {
             </button>
           </div>
           <div class="map-container" id="mapContainer"></div>
+          <div class="war-ticker" id="warTicker">
+            <div class="war-ticker-label">⚔ BREAKING</div>
+            <div class="war-ticker-track">
+              <div class="war-ticker-content" id="warTickerContent">
+                IRAN WAR MONITOR — Loading latest updates...
+              </div>
+            </div>
+          </div>
           <div class="map-resize-handle" id="mapResizeHandle"></div>
         </div>
         <div class="panels-grid" id="panelsGrid"></div>
@@ -1895,6 +1881,32 @@ export class App {
 
     this.createPanels();
     this.renderPanelToggles();
+  }
+
+  private updateWarTicker(news: NewsItem[]): void {
+    const tickerEl = document.getElementById('warTickerContent');
+    if (!tickerEl) return;
+
+    const headlines = news
+      .filter(n => n.title && n.title.length > 10)
+      .slice(0, 30)
+      .map(n => {
+        const src = n.source ? `[${n.source}]` : '';
+        return `${src} ${n.title}`;
+      });
+
+    if (headlines.length === 0) {
+      tickerEl.textContent = 'IRAN WAR MONITOR — Awaiting latest intelligence updates...';
+      return;
+    }
+
+    const separator = '  ◆  ';
+    const tickerText = headlines.join(separator) + separator;
+    tickerEl.textContent = tickerText;
+
+    const contentWidth = tickerEl.scrollWidth;
+    const duration = Math.max(contentWidth / 60, 30);
+    tickerEl.style.animationDuration = `${duration}s`;
   }
 
   /**
@@ -3416,6 +3428,7 @@ export class App {
     }
 
     this.allNews = collectedNews;
+    this.updateWarTicker(collectedNews);
     this.initialLoadComplete = true;
     maybeShowDownloadBanner();
     mountCommunityWidget();

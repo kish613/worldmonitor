@@ -48,8 +48,8 @@ export function updateMetaTagsForStory(meta: StoryMeta): void {
 }
 
 export function resetMetaTags(): void {
-  const defaultTitle = 'World Monitor - Global Situation with AI Insights';
-  const defaultDesc = 'AI-powered real-time global intelligence dashboard with live news, markets, military tracking, and geopolitical data.';
+  const defaultTitle = 'Iran War Monitor - Israel-USA-Iran Conflict Dashboard';
+  const defaultDesc = 'Real-time intelligence dashboard tracking the Israel-USA-Iran war. Live news, military ops, oil markets, conflict zones, and humanitarian impact.';
   
   setMetaTag('title', defaultTitle);
   setMetaTag('description', defaultDesc);
